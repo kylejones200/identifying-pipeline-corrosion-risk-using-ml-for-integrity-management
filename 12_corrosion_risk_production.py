@@ -13,13 +13,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import roc_auc_score, average_precision_score, precision_recall_curve
 
-# Import Tufte plotting utilities
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from tda_utils import setup_tufte_plot, TufteColors
-
-
 def generate_pipeline_corrosion_data(n_joints=5000, random_seed=42):
     """
     Generate synthetic joint-level corrosion data.
