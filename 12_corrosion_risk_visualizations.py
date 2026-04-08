@@ -22,6 +22,13 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from plot_style import set_tufte_defaults, apply_tufte_style, save_tufte_figure, COLORS
 
+# Import Tufte plotting utilities
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from tda_utils import setup_tufte_plot, TufteColors
+
+
 
 # Import production module
 spec = importlib.util.spec_from_file_location(
@@ -54,8 +61,6 @@ def create_risk_visualizations(risk_df, work_list, metrics):
     ax1.spines['right'].set_visible(False)
     ax1.spines['left'].set_position(('outward', 5))
     ax1.spines['bottom'].set_position(('outward', 5))
-    ax1.grid(False)
-    
     ax1.set_title('Corrosion Risk Score Distribution', fontsize=12, fontweight='bold', loc='left')
     ax1.set_xlabel('Risk Score', fontsize=10)
     ax1.set_ylabel('Frequency', fontsize=10)
@@ -77,8 +82,6 @@ def create_risk_visualizations(risk_df, work_list, metrics):
     ax2.spines['right'].set_visible(False)
     ax2.spines['left'].set_position(('outward', 5))
     ax2.spines['bottom'].set_position(('outward', 5))
-    ax2.grid(False)
-    
     ax2.set_title('Risk Score vs ILI Metal Loss', fontsize=12, fontweight='bold', loc='left')
     ax2.set_xlabel('ILI Metal Loss (%)', fontsize=10)
     ax2.set_ylabel('Predicted Risk Score', fontsize=10)
@@ -102,8 +105,6 @@ def create_risk_visualizations(risk_df, work_list, metrics):
     ax3.spines['right'].set_visible(False)
     ax3.spines['left'].set_position(('outward', 5))
     ax3.spines['bottom'].set_position(('outward', 5))
-    ax3.grid(False)
-    
     ax3.set_title('CP Potential vs Risk by Coating', fontsize=12, fontweight='bold', loc='left')
     ax3.set_xlabel('CP Potential (V vs Cu/CuSO4)', fontsize=10)
     ax3.set_ylabel('Predicted Risk Score', fontsize=10)
@@ -122,8 +123,6 @@ def create_risk_visualizations(risk_df, work_list, metrics):
     ax4.spines['right'].set_visible(False)
     ax4.spines['left'].set_position(('outward', 5))
     ax4.spines['bottom'].set_position(('outward', 5))
-    ax4.grid(False)
-    
     ax4.set_title('Work List: Value per Dollar (Every 5th Joint)', fontsize=12, 
                   fontweight='bold', loc='left')
     ax4.set_xlabel('Value per Dollar Spent', fontsize=10)
