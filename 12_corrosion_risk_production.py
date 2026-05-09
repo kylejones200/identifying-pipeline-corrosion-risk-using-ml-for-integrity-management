@@ -13,6 +13,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import roc_auc_score, average_precision_score, precision_recall_curve
 
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 # Import Tufte plotting utilities
 import sys
 from pathlib import Path
@@ -71,15 +77,15 @@ def generate_pipeline_corrosion_data(n_joints=5000, random_seed=42):
     prob = 1 / (1 + np.exp(-risk_logit))
     df['corrosion_fail'] = (rng.random(n_joints) < prob).astype(int)
     
-    print(f"Generated {n_joints} pipeline joints:")
-    print(f"  Age range: {df['age_years'].min()} - {df['age_years'].max()} years")
-    print(f"  Soil resistivity: {df['soil_resistivity'].min():.0f} - {df['soil_resistivity'].max():.0f} ohm-cm")
-    print(f"  CP potential: {df['cp_potential'].min():.3f} - {df['cp_potential'].max():.3f} V")
-    print(f"  ILI metal loss: {df['ili_metal_loss'].min():.1f}% - {df['ili_metal_loss'].max():.1f}%")
-    print(f"  Failure rate: {df['corrosion_fail'].mean():.1%}")
-    print(f"  Coating distribution:")
+    logger.info(f"Generated {n_joints} pipeline joints:")
+    logger.info(f"  Age range: {df['age_years'].min()} - {df['age_years'].max()} years")
+    logger.info(f"  Soil resistivity: {df['soil_resistivity'].min():.0f} - {df['soil_resistivity'].max():.0f} ohm-cm")
+    logger.info(f"  CP potential: {df['cp_potential'].min():.3f} - {df['cp_potential'].max():.3f} V")
+    logger.info(f"  ILI metal loss: {df['ili_metal_loss'].min():.1f}% - {df['ili_metal_loss'].max():.1f}%")
+    logger.error(f"  Failure rate: {df['corrosion_fail'].mean():.1%}")
+    logger.info(f"  Coating distribution:")
     for coating, count in df['coating'].value_counts().items():
-        print(f"    {coating}: {count} joints ({count/len(df)*100:.1f}%)")
+        logger.info(f"    {coating}: {count} joints ({count/len(df)*100:.1f}%)")
     
     return df
 
@@ -96,9 +102,9 @@ def prepare_features(df):
     numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
     categorical_cols = ['coating']
     
-    print(f"\nFeature preparation:")
-    print(f"  Numeric features ({len(numeric_cols)}): {', '.join(numeric_cols)}")
-    print(f"  Categorical features ({len(categorical_cols)}): {', '.join(categorical_cols)}")
+    logger.info(f"\nFeature preparation:")
+    logger.info(f"  Numeric features ({len(numeric_cols)}): {', '.join(numeric_cols)}")
+    logger.info(f"  Categorical features ({len(categorical_cols)}): {', '.join(categorical_cols)}")
     
     return X, y, numeric_cols, categorical_cols
 
@@ -132,10 +138,10 @@ def train_corrosion_risk_model(X, y, numeric_cols, categorical_cols):
         X, y, test_size=0.25, random_state=42, stratify=y
     )
     
-    print(f"\nTraining corrosion risk classifier:")
-    print(f"  Training set: {len(X_train)} joints")
-    print(f"  Test set: {len(X_test)} joints")
-    print(f"  Positive class (failures) in test: {y_test.sum()} ({y_test.mean():.1%})")
+    logger.info(f"\nTraining corrosion risk classifier:")
+    logger.info(f"  Training set: {len(X_train)} joints")
+    logger.info(f"  Test set: {len(X_test)} joints")
+    logger.error(f"  Positive class (failures) in test: {y_test.sum()} ({y_test.mean():.1%})")
     
     # Train
     model.fit(X_train, y_train)
@@ -158,13 +164,13 @@ def train_corrosion_risk_model(X, y, numeric_cols, categorical_cols):
     optimal_recall = recalls[optimal_idx]
     optimal_f1 = f1_scores[optimal_idx]
     
-    print(f"\nModel Performance:")
-    print(f"  ROC AUC: {roc_auc:.3f}")
-    print(f"  Average Precision: {avg_precision:.3f}")
-    print(f"  Optimal Threshold: {optimal_threshold:.3f}")
-    print(f"  Precision @ Optimal: {optimal_precision:.3f}")
-    print(f"  Recall @ Optimal: {optimal_recall:.3f}")
-    print(f"  F1 Score @ Optimal: {optimal_f1:.3f}")
+    logger.info(f"\nModel Performance:")
+    logger.info(f"  ROC AUC: {roc_auc:.3f}")
+    logger.info(f"  Average Precision: {avg_precision:.3f}")
+    logger.info(f"  Optimal Threshold: {optimal_threshold:.3f}")
+    logger.info(f"  Precision @ Optimal: {optimal_precision:.3f}")
+    logger.info(f"  Recall @ Optimal: {optimal_recall:.3f}")
+    logger.info(f"  F1 Score @ Optimal: {optimal_f1:.3f}")
     
     return model, X_test, y_test, y_pred_proba, {
         'roc_auc': roc_auc,
@@ -196,18 +202,18 @@ def analyze_feature_importance(model, X, numeric_cols, categorical_cols):
         'importance': importances
     }).sort_values('importance', ascending=False)
     
-    print("\nFeature Importance (Top 10):")
+    logger.info("\nFeature Importance (Top 10):")
     for idx, row in importance_df.head(10).iterrows():
-        print(f"  {row['feature']:<25} {row['importance']:.3f}")
+        logger.info(f"  {row['feature']:<25} {row['importance']:.3f}")
     
     # Group by category
-    print("\nImportance by Category:")
-    print(f"  ILI Data (metal_loss):        {importance_df[importance_df['feature']=='ili_metal_loss']['importance'].sum():.3f}")
-    print(f"  CP Data (cp_potential):       {importance_df[importance_df['feature']=='cp_potential']['importance'].sum():.3f}")
-    print(f"  Soil (soil_resistivity):      {importance_df[importance_df['feature']=='soil_resistivity']['importance'].sum():.3f}")
-    print(f"  Age:                          {importance_df[importance_df['feature']=='age_years']['importance'].sum():.3f}")
+    logger.info("\nImportance by Category:")
+    logger.info(f"  ILI Data (metal_loss):        {importance_df[importance_df['feature']=='ili_metal_loss']['importance'].sum():.3f}")
+    logger.info(f"  CP Data (cp_potential):       {importance_df[importance_df['feature']=='cp_potential']['importance'].sum():.3f}")
+    logger.info(f"  Soil (soil_resistivity):      {importance_df[importance_df['feature']=='soil_resistivity']['importance'].sum():.3f}")
+    logger.info(f"  Age:                          {importance_df[importance_df['feature']=='age_years']['importance'].sum():.3f}")
     coating_importance = importance_df[importance_df['feature'].str.contains('coating', case=False)]['importance'].sum()
-    print(f"  Coating Type:                 {coating_importance:.3f}")
+    logger.info(f"  Coating Type:                 {coating_importance:.3f}")
     
     return importance_df
 
@@ -242,28 +248,28 @@ def create_work_list(model, X_test, y_test, y_pred_proba, budget_joints=50):
     captured_failures = work_list['actual_failure'].sum()
     capture_rate = captured_failures / total_failures
     
-    print(f"\nWork List Summary:")
-    print(f"  Budget: {budget_joints} joints")
-    print(f"  Total joints: {len(X_test)}")
-    print(f"  Budget utilization: {budget_joints/len(X_test)*100:.1f}%")
-    print(f"  Total failures in test set: {total_failures}")
-    print(f"  Failures captured in work list: {captured_failures}")
-    print(f"  Capture rate: {capture_rate:.1%}")
-    print(f"  Average risk score (top 50): {work_list['risk_score'].mean():.3f}")
-    print(f"  Average risk score (full set): {risk_df['risk_score'].mean():.3f}")
-    print(f"  Total work cost: ${work_list['work_cost'].sum():,.0f}")
-    print(f"  Average cost per joint: ${work_list['work_cost'].mean():,.0f}")
+    logger.info(f"\nWork List Summary:")
+    logger.info(f"  Budget: {budget_joints} joints")
+    logger.info(f"  Total joints: {len(X_test)}")
+    logger.info(f"  Budget utilization: {budget_joints/len(X_test)*100:.1f}%")
+    logger.error(f"  Total failures in test set: {total_failures}")
+    logger.error(f"  Failures captured in work list: {captured_failures}")
+    logger.info(f"  Capture rate: {capture_rate:.1%}")
+    logger.info(f"  Average risk score (top 50): {work_list['risk_score'].mean():.3f}")
+    logger.info(f"  Average risk score (full set): {risk_df['risk_score'].mean():.3f}")
+    logger.info(f"  Total work cost: ${work_list['work_cost'].sum():,.0f}")
+    logger.info(f"  Average cost per joint: ${work_list['work_cost'].mean():,.0f}")
     
     # Display top 10
-    print(f"\nTop 10 Priority Joints:")
+    logger.info(f"\nTop 10 Priority Joints:")
     
     for idx, (i, row) in enumerate(work_list.head(10).iterrows(), 1):
-        print(f"\n  Joint #{idx} (ID: {i}):")
-        print(f"    Risk Score: {row['risk_score']:.3f}")
-        print(f"    Value/Cost: ${row['value_per_dollar']:.2f} per $1")
-        print(f"    Age: {row['age_years']} years, Coating: {row['coating']}")
-        print(f"    CP: {row['cp_potential']:.3f} V, Soil: {row['soil_resistivity']:.0f} ohm-cm")
-        print(f"    Metal Loss: {row['ili_metal_loss']:.1f}%, HCA Distance: {row['hca_distance_m']:.0f} m")
+        logger.info(f"\n  Joint #{idx} (ID: {i}):")
+        logger.info(f"    Risk Score: {row['risk_score']:.3f}")
+        logger.info(f"    Value/Cost: ${row['value_per_dollar']:.2f} per $1")
+        logger.info(f"    Age: {row['age_years']} years, Coating: {row['coating']}")
+        logger.info(f"    CP: {row['cp_potential']:.3f} V, Soil: {row['soil_resistivity']:.0f} ohm-cm")
+        logger.info(f"    Metal Loss: {row['ili_metal_loss']:.1f}%, HCA Distance: {row['hca_distance_m']:.0f} m")
     
     return work_list, risk_df
 
@@ -293,13 +299,13 @@ def analyze_business_value(work_list, risk_df, y_test):
     age_captured = age_sorted['actual_failure'].sum()
     age_cost = age_sorted['work_cost'].sum()
     
-    print("\n" + "="*70)
-    print("BUSINESS VALUE ANALYSIS")
-    print("="*70)
+    logger.info("\n" + "="*70)
+    logger.info("BUSINESS VALUE ANALYSIS")
+    logger.info("="*70)
     
-    print(f"\nTotal Network: {total_joints} joints, {total_failures} failures ({total_failures/total_joints*100:.1f}%)")
-    print(f"Inspection Budget: 50 joints (4.0% of network)")
-    print()
+    logger.error(f"\nTotal Network: {total_joints} joints, {total_failures} failures ({total_failures/total_joints*100:.1f}%)")
+    logger.info(f"Inspection Budget: 50 joints (4.0% of network)")
+    logger.info()
     
     strategies = [
         ("ML Model (Value/Cost)", ml_captured, ml_cost),
@@ -308,23 +314,23 @@ def analyze_business_value(work_list, risk_df, y_test):
         ("Random Sampling", random_captured, random_cost)
     ]
     
-    print(f"{'Strategy':<25} {'Failures Captured':<20} {'Capture Rate':<15} {'Cost':<15} {'Cost/Failure'}")
-    print("-" * 100)
+    logger.error(f"{'Strategy':<25} {'Failures Captured':<20} {'Capture Rate':<15} {'Cost':<15} {'Cost/Failure'}")
+    logger.info("-" * 100)
     
     for strategy, captured, cost in strategies:
         capture_rate = captured / total_failures
         cost_per_failure = cost / captured if captured > 0 else float('inf')
-        print(f"{strategy:<25} {captured:>8}/{total_failures:<10} {capture_rate:>14.1%} ${cost:>13,.0f} ${cost_per_failure:>12,.0f}")
+        logger.error(f"{strategy:<25} {captured:>8}/{total_failures:<10} {capture_rate:>14.1%} ${cost:>13,.0f} ${cost_per_failure:>12,.0f}")
     
     # Calculate lift
     ml_lift_vs_ili = ((ml_captured - ili_captured) / ili_captured * 100) if ili_captured > 0 else 0
     ml_lift_vs_age = ((ml_captured - age_captured) / age_captured * 100) if age_captured > 0 else 0
     ml_lift_vs_random = ((ml_captured - random_captured) / random_captured * 100) if random_captured > 0 else 0
     
-    print(f"\nML Model Lift:")
-    print(f"  vs ILI Sort:      +{ml_lift_vs_ili:.1f}% failures captured")
-    print(f"  vs Age Sort:      +{ml_lift_vs_age:.1f}% failures captured")
-    print(f"  vs Random:        +{ml_lift_vs_random:.1f}% failures captured")
+    logger.info(f"\nML Model Lift:")
+    logger.error(f"  vs ILI Sort:      +{ml_lift_vs_ili:.1f}% failures captured")
+    logger.error(f"  vs Age Sort:      +{ml_lift_vs_age:.1f}% failures captured")
+    logger.error(f"  vs Random:        +{ml_lift_vs_random:.1f}% failures captured")
     
     # Estimate prevented failures
     failure_consequence = 100000
@@ -333,17 +339,17 @@ def analyze_business_value(work_list, risk_df, y_test):
     
     value_gain = ml_prevented_cost - ili_prevented_cost
     
-    print(f"\nEstimated Value (vs ILI Sort):")
-    print(f"  Additional failures prevented: {ml_captured - ili_captured}")
-    print(f"  Value of prevented failures: ${value_gain:,.0f}")
-    print(f"  ROI: {value_gain / ml_cost:.1f}x inspection cost")
+    logger.info(f"\nEstimated Value (vs ILI Sort):")
+    logger.error(f"  Additional failures prevented: {ml_captured - ili_captured}")
+    logger.error(f"  Value of prevented failures: ${value_gain:,.0f}")
+    logger.info(f"  ROI: {value_gain / ml_cost:.1f}x inspection cost")
 
 def main():
     """Complete pipeline corrosion risk ranking pipeline."""
-    print("="*70)
-    print("PIPELINE CORROSION RISK RANKING WITH MACHINE LEARNING")
-    print("="*70)
-    print()
+    logger.info("="*70)
+    logger.info("PIPELINE CORROSION RISK RANKING WITH MACHINE LEARNING")
+    logger.info("="*70)
+    logger.info()
     
     # 1. Generate data
     df = generate_pipeline_corrosion_data(n_joints=5000, random_seed=42)
@@ -365,9 +371,9 @@ def main():
     # 6. Business value analysis
     analyze_business_value(work_list, risk_df, y_test)
     
-    print("\n" + "="*70)
-    print("Pipeline complete!")
-    print("="*70)
+    logger.info("\n" + "="*70)
+    logger.info("Pipeline complete!")
+    logger.info("="*70)
     
     return {
         'model': model,

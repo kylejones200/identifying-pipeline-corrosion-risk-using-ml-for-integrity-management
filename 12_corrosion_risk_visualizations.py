@@ -2,6 +2,12 @@
 import sys
 import os
 
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 # Add parent directory to path to import plot_style
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from plot_style import set_tufte_defaults, apply_tufte_style, save_tufte_figure, COLORS
@@ -133,15 +139,15 @@ def create_risk_visualizations(risk_df, work_list, metrics):
     plt.savefig('/Users/k.jones/Desktop/blogs/blog_posts/12_corrosion_risk_main.png', dpi=300, bbox_inches='tight')
     plt.close()
     
-    print("✓ Created: 12_corrosion_risk_main.png")
+    logger.info("✓ Created: 12_corrosion_risk_main.png")
 
 def main():
     """Generate all visualizations for blog 12."""
     set_tufte_defaults()
-    print("="*70)
-    print("BLOG 12 VISUALIZATION GENERATION")
-    print("="*70)
-    print()
+    logger.info("="*70)
+    logger.info("BLOG 12 VISUALIZATION GENERATION")
+    logger.info("="*70)
+    logger.info()
     
     # Generate data and train model
     df = generate_pipeline_corrosion_data(n_joints=5000, random_seed=42)
@@ -154,10 +160,10 @@ def main():
     # Create visualizations
     create_risk_visualizations(risk_df, work_list, metrics)
     
-    print()
-    print("="*70)
-    print("Visualization generation complete!")
-    print("="*70)
+    logger.info()
+    logger.info("="*70)
+    logger.info("Visualization generation complete!")
+    logger.info("="*70)
 
 if __name__ == "__main__":
     main()
