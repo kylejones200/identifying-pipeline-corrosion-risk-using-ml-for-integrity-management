@@ -1,66 +1,38 @@
+---
+author: "Kyle Jones"
+date_published: "October 24, 2025"
+date_exported_from_medium: "November 10, 2025"
+canonical_link: "https://medium.com/@kyle-t-jones/identifying-pipeline-corrosion-risk-using-ml-for-integrity-management-f185ffd5e007"
+---
+
 # Identifying Pipeline Corrosion Risk Using ML for Integrity Management In 2020, Colonial Pipeline suffered a corrosion-related leak in North
 Carolina that resulted in a loss of containment of \~1.2 million...
 
 ### Identifying Pipeline Corrosion Risk Using ML for Integrity Management
-In 2020, Colonial Pipeline suffered a corrosion-related leak in North
-Carolina that resulted in a loss of containment of \~1.2 million gallons
-of fuel. Potential issues with the pipeline integrity in that segment
-had been flagged before but those had been reprioritized (ranked 47th
-but only the top 30 issues were funded). Colonial had to\$7.8 million in
-cleanup costs and penalties.
+In 2020, Colonial Pipeline suffered a corrosion-related leak in North Carolina that resulted in a loss of containment of \~1.2 million gallons of fuel. Potential issues with the pipeline integrity in that segment had been flagged before but those had been reprioritized (ranked 47th but only the top 30 issues were funded). Colonial had to\$7.8 million in cleanup costs and penalties.
 
 
-Traditional corrosion risk models use linear scoring: add points for
-age, subtract points for cathodic protection (CP) readings, multiply by
-consequence factors. But corrosion is nonlinear. The interaction between
-soil resistivity and CP potential isn't additive --- it's multiplicative
-and threshold-driven. A 40-year-old pipeline with marginal CP in
-low-resistivity soil behaves fundamentally differently than the sum of
-its parts would suggest.
+Traditional corrosion risk models use linear scoring: add points for age, subtract points for cathodic protection (CP) readings, multiply by consequence factors. But corrosion is nonlinear. The interaction between soil resistivity and CP potential isn't additive --- it's multiplicative and threshold-driven. A 40-year-old pipeline with marginal CP in low-resistivity soil behaves fundamentally differently than the sum of its parts would suggest.
 
-Machine learning doesn't just score risk --- it learns these
-interactions from data. A gradient boosting classifier trained on inline
-inspection (ILI) results, CP surveys, soil conditions, and coating
-assessments produces risk rankings that optimize inspection budgets by
-focusing resources where failure probability intersects with
-consequence.
+Machine learning doesn't just score risk --- it learns these interactions from data. A gradient boosting classifier trained on inline inspection (ILI) results, CP surveys, soil conditions, and coating assessments produces risk rankings that optimize inspection budgets by focusing resources where failure probability intersects with consequence.
 
 
-<figcaption><em>Distribution of predicted corrosion risk scores across
-1,250 pipeline joints. The long tail of high-risk segments (&gt;0.7)
-represents less than 8% of the network but accounts for an estimated 43%
-of failure probability-weighted consequences. These joints become the
-prioritized work list.</em></figcaption>
+<figcaption><em>Distribution of predicted corrosion risk scores across 1,250 pipeline joints. The long tail of high-risk segments (&gt;0.7) represents less than 8% of the network but accounts for an estimated 43% of failure probability-weighted consequences. These joints become the prioritized work list.</em></figcaption>
 
 
 ### The Data: Joint-Level Integrity Indicators
-Pipeline operators collect multiple data streams that inform corrosion
-risk:
+Pipeline operators collect multiple data streams that inform corrosion risk:
 
-1.  [Inline Inspection (ILI) --- Magnetic flux leakage or ultrasonic
-    tools measure wall thickness, detecting metal loss anomalies]
-2.  [Cathodic Protection (CP) --- Potential readings indicate
-    electrochemical protection levels (-0.85V or more negative is
-    protective)]
-3.  [Soil Resistivity --- Lower resistivity (higher conductivity)
-    accelerates galvanic corrosion]
-4.  [Coating Condition --- Disbonded or damaged coatings expose bare
-    steel to corrosive environments]
-5.  [Environmental Factors --- Proximity to water, temperature,
-    atmospheric conditions]
-6.  [Operational History --- Age, pressure cycling, product chemistry,
-    previous repairs]
+1.  [Inline Inspection (ILI) --- Magnetic flux leakage or ultrasonic tools measure wall thickness, detecting metal loss anomalies]
+2.  [Cathodic Protection (CP) --- Potential readings indicate electrochemical protection levels (-0.85V or more negative is protective)]
+3.  [Soil Resistivity --- Lower resistivity (higher conductivity) accelerates galvanic corrosion]
+4.  [Coating Condition --- Disbonded or damaged coatings expose bare steel to corrosive environments]
+5.  [Environmental Factors --- Proximity to water, temperature, atmospheric conditions]
+6.  [Operational History --- Age, pressure cycling, product chemistry, previous repairs]
 
-Traditional models treat these as independent risk factors. ML models
-capture their interactions: CP is only protective if the coating isn't
-severely disbonded; soil resistivity matters more in older pipelines
-where coating has degraded; temperature affects both corrosion rate and
-cathodic protection current demand.
+Traditional models treat these as independent risk factors. ML models capture their interactions: CP is only protective if the coating isn't severely disbonded; soil resistivity matters more in older pipelines where coating has degraded; temperature affects both corrosion rate and cathodic protection current demand.
 
-For this analysis, we use synthetic joint-level data representing a
-5,000-segment pipeline network with realistic distributions of ILI
-findings, CP potentials, soil conditions, coating types, and failure
-labels derived from physics-based risk relationships.
+For this analysis, we use synthetic joint-level data representing a 5,000-segment pipeline network with realistic distributions of ILI findings, CP potentials, soil conditions, coating types, and failure labels derived from physics-based risk relationships.
 
 ### Synthetic Data Generation
 ```python
@@ -185,15 +157,9 @@ Feature preparation:
   Categorical features (1): coating
 ```
 
-The 12.3% failure rate matches industry observations. In a typical
-pipeline network we expect to see 10--15% of segments with active or
-accelerated corrosion requiring intervention within the next assessment
-cycle.
+The 12.3% failure rate matches industry observations. In a typical pipeline network we expect to see 10--15% of segments with active or accelerated corrosion requiring intervention within the next assessment cycle.
 
-CP potentials more negative than -0.85V indicate adequate protection per
-NACE SP0169. Our distribution centers at -0.95V (adequate) with scatter
-representing seasonal variations, soil condition changes, and rectifier
-performance.
+CP potentials more negative than -0.85V indicate adequate protection per NACE SP0169. Our distribution centers at -0.95V (adequate) with scatter representing seasonal variations, soil condition changes, and rectifier performance.
 
 ### Training the Risk Classifier
 ```python
@@ -294,20 +260,11 @@ Model Performance:
   F1 Score @ Optimal: 0.732
 ```
 
-This is a classification problem. So an aROC AUC of 0.947 indicates
-excellent discrimination. The model ranks high-risk joints significantly
-higher than low-risk joints. In practical terms, if you inspect the top
-100 highest-ranked joints, you'll capture \~75% of all actual failures
-despite inspecting only 2% of the network.
+This is a classification problem. So an aROC AUC of 0.947 indicates excellent discrimination. The model ranks high-risk joints significantly higher than low-risk joints. In practical terms, if you inspect the top 100 highest-ranked joints, you'll capture \~75% of all actual failures despite inspecting only 2% of the network.
 
-Average Precision (0.782) is the area under the precision-recall curve.
-This matters more than ROC AUC in imbalanced datasets (12% failure rate)
-because it focuses on performance in the positive class.
+Average Precision (0.782) is the area under the precision-recall curve. This matters more than ROC AUC in imbalanced datasets (12% failure rate) because it focuses on performance in the positive class.
 
-The optimal threshold (0.118) is lower than 0.5 because we're in an
-imbalanced setting. Using this threshold, we achieve 71% precision (71%
-of flagged joints are true failures) and 75% recall (we catch 75% of all
-failures).
+The optimal threshold (0.118) is lower than 0.5 because we're in an imbalanced setting. Using this threshold, we achieve 71% precision (71% of flagged joints are true failures) and 75% recall (we catch 75% of all failures).
 
 ### Feature Importance and Risk Drivers
 ```python
@@ -371,25 +328,14 @@ Importance by Category:
   Coating Type:                 0.112
 ```
 
-ILI metal loss dominates (28.7%) because it's a direct measurement of
-damage. But the model doesn't simply sort by metal loss --- it combines
-ILI findings with CP data, age, and soil conditions to predict
-*progression* risk.
+ILI metal loss dominates (28.7%) because it's a direct measurement of damage. But the model doesn't simply sort by metal loss --- it combines ILI findings with CP data, age, and soil conditions to predict *progression* risk.
 
-CP potential is second (24.5%) because inadequate cathodic protection
-accelerates future corrosion even if current ILI shows minimal damage. A
-joint with 5% metal loss but marginal CP is riskier than one with 10%
-metal loss but strong CP.
+CP potential is second (24.5%) because inadequate cathodic protection accelerates future corrosion even if current ILI shows minimal damage. A joint with 5% metal loss but marginal CP is riskier than one with 10% metal loss but strong CP.
 
-Age matters (13.4%), but less than you'd expect from traditional linear
-scoring. The model learns that age only predicts risk when combined with
-other factors: old pipes with good CP and intact coatings are low risk;
-young pipes with poor CP in corrosive soils are high risk.
+Age matters (13.4%), but less than you'd expect from traditional linear scoring. The model learns that age only predicts risk when combined with other factors: old pipes with good CP and intact coatings are low risk; young pipes with poor CP in corrosive soils are high risk.
 
 ### Risk Ranking and Work Prioritization
-Let's layer in some business logic. This is compleely made up with
-synthecic data. The goal is to show that an ML model can be applied to
-drive business outcomes.
+Let's layer in some business logic. This is compleely made up with synthecic data. The goal is to show that an ML model can be applied to drive business outcomes.
 
 ```python
 def create_work_list(model, X_test, y_test, y_pred_proba, budget_joints=50):
@@ -539,25 +485,16 @@ Top 10 Priority Joints:
     Metal Loss: 55.9%, HCA Distance: 2678 m
 ```
 
-By inspecting just 4% of the network (50 of 1,250 joints), the model
-captures 50.6% of all failures. Random sampling would capture only 4%. A
-simple "sort by metal loss" approach would capture \~35%. The ML model's
-50.6% represents a 45% improvement over naive prioritization.
+By inspecting just 4% of the network (50 of 1,250 joints), the model captures 50.6% of all failures. Random sampling would capture only 4%. A simple "sort by metal loss" approach would capture \~35%. The ML model's 50.6% represents a 45% improvement over naive prioritization.
 
 The top joints share common characteristics:
 
-- Old age + poor coating (Tape, Coal Tar from 1970s-1980s
-  installations)
-- Marginal or inadequate CP (potentials between -0.7V and -0.85V,
-  borderline protection)
-- Low soil resistivity (1,200--2,500 ohm-cm, accelerates
-  corrosion)
-- High ILI metal loss (\>45%, approaching code-mandated repair
-  thresholds)
+- Old age + poor coating (Tape, Coal Tar from 1970s-1980s installations)
+- Marginal or inadequate CP (potentials between -0.7V and -0.85V, borderline protection)
+- Low soil resistivity (1,200--2,500 ohm-cm, accelerates corrosion)
+- High ILI metal loss (\>45%, approaching code-mandated repair thresholds)
 
-But note that Joint #6 has only 44 years of age yet ranks highly due to
-very poor CP (-0.698V, inadequate) and high metal loss despite PE
-coating. The model learned that CP trumps coating when protection fails.
+But note that Joint #6 has only 44 years of age yet ranks highly due to very poor CP (-0.698V, inadequate) and high metal loss despite PE coating. The model learned that CP trumps coating when protection fails.
 
 ### Visualizations
 ```python
@@ -752,44 +689,15 @@ Estimated Value (vs ILI Sort):
   ROI: 3.0x inspection cost
 ```
 
-The ML model captures 44.4% more failures than the traditional ILI-based
-approach for roughly the same cost. Translating this to business value:
-24 additional failures prevented × \$100,000 average consequence = \$2.4
-million in avoided costs, representing a 3x return on inspection
-investment. Again, this is made up but illustrative.
+The ML model captures 44.4% more failures than the traditional ILI-based approach for roughly the same cost. Translating this to business value: 24 additional failures prevented × \$100,000 average consequence = \$2.4 million in avoided costs, representing a 3x return on inspection investment. Again, this is made up but illustrative.
 
-Against age-based prioritization (common in legacy systems), the
-improvement is 90.2% --- nearly double the failure capture rate. This is
-because age alone is a weak predictor when not combined with CP,
-coating, and soil data.
+Against age-based prioritization (common in legacy systems), the improvement is 90.2% --- nearly double the failure capture rate. This is because age alone is a weak predictor when not combined with CP, coating, and soil data.
 
-The random sampling baseline (3.9% capture rate, roughly equal to the
-sampling percentage) demonstrates that naive approaches provide no real
-targeting capability.
+The random sampling baseline (3.9% capture rate, roughly equal to the sampling percentage) demonstrates that naive approaches provide no real targeting capability.
 
 ### So what?
-Pipeline corrosion risk ranking helps with optimization under
-uncertainty. When inspection budgets cover 5% of your network but
-failures can occur anywhere, you need methods that capture 50% of risk
-with 4% of budget.
+Pipeline corrosion risk ranking helps with optimization under uncertainty. When inspection budgets cover 5% of your network but failures can occur anywhere, you need methods that capture 50% of risk with 4% of budget.
 
-Machine learning delivers this through learned feature interactions. CP
-effectiveness depends on coating integrity; age matters more with
-aggressive soils; metal loss progression accelerates when protection
-fails. Linear scoring systems can't capture these relationships.
-Gradient boosting can.
+Machine learning delivers this through learned feature interactions. CP effectiveness depends on coating integrity; age matters more with aggressive soils; metal loss progression accelerates when protection fails. Linear scoring systems can't capture these relationships. Gradient boosting can.
 
-In our experiment, we saw a 44% improvement over traditional ILI-based
-prioritization translates directly to business value. This means more
-failures prevented, lower consequence costs, optimized inspection
-spending. For a 1,000-mile pipeline network, that's the difference
-between capturing 80 critical defects versus 55 --- a gap that could
-mean the difference between safe operations and a headline-making
-incident.
-::::::::By [Kyle Jones](https://medium.com/@kyle-t-jones) on
-[October 24, 2025](https://medium.com/p/f185ffd5e007).
-
-[Canonical
-link](https://medium.com/@kyle-t-jones/identifying-pipeline-corrosion-risk-using-ml-for-integrity-management-f185ffd5e007)
-
-Exported from [Medium](https://medium.com) on November 10, 2025.
+In our experiment, we saw a 44% improvement over traditional ILI-based prioritization translates directly to business value. This means more failures prevented, lower consequence costs, optimized inspection spending. For a 1,000-mile pipeline network, that's the difference between capturing 80 critical defects versus 55 --- a gap that could mean the difference between safe operations and a headline-making incident.
