@@ -77,7 +77,7 @@ def generate_pipeline_corrosion_data(n_joints=5000, random_seed=42):
     logger.info(f"  Soil resistivity: {df['soil_resistivity'].min():.0f} - {df['soil_resistivity'].max():.0f} ohm-cm")
     logger.info(f"  CP potential: {df['cp_potential'].min():.3f} - {df['cp_potential'].max():.3f} V")
     logger.info(f"  ILI metal loss: {df['ili_metal_loss'].min():.1f}% - {df['ili_metal_loss'].max():.1f}%")
-    logger.error(f"  Failure rate: {df['corrosion_fail'].mean():.1%}")
+    logger.error(f"  Failure rate: {df['corrosion_fail'].mean(, exc_info=True):.1%}")
     logger.info(f"  Coating distribution:")
     for coating, count in df['coating'].value_counts().items():
         logger.info(f"    {coating}: {count} joints ({count/len(df)*100:.1f}%)")
@@ -136,7 +136,7 @@ def train_corrosion_risk_model(X, y, numeric_cols, categorical_cols):
     logger.info(f"\nTraining corrosion risk classifier:")
     logger.info(f"  Training set: {len(X_train)} joints")
     logger.info(f"  Test set: {len(X_test)} joints")
-    logger.error(f"  Positive class (failures) in test: {y_test.sum()} ({y_test.mean():.1%})")
+    logger.error(f"  Positive class (failures, exc_info=True) in test: {y_test.sum()} ({y_test.mean():.1%})")
     
     # Train
     model.fit(X_train, y_train)
@@ -247,8 +247,8 @@ def create_work_list(model, X_test, y_test, y_pred_proba, budget_joints=50):
     logger.info(f"  Budget: {budget_joints} joints")
     logger.info(f"  Total joints: {len(X_test)}")
     logger.info(f"  Budget utilization: {budget_joints/len(X_test)*100:.1f}%")
-    logger.error(f"  Total failures in test set: {total_failures}")
-    logger.error(f"  Failures captured in work list: {captured_failures}")
+    logger.error(f"  Total failures in test set: {total_failures}", exc_info=True)
+    logger.error(f"  Failures captured in work list: {captured_failures}", exc_info=True)
     logger.info(f"  Capture rate: {capture_rate:.1%}")
     logger.info(f"  Average risk score (top 50): {work_list['risk_score'].mean():.3f}")
     logger.info(f"  Average risk score (full set): {risk_df['risk_score'].mean():.3f}")
@@ -296,7 +296,7 @@ def analyze_business_value(work_list, risk_df, y_test):
     
     logger.info("=== BUSINESS VALUE ANALYSIS ===")
     
-    logger.error(f"\nTotal Network: {total_joints} joints, {total_failures} failures ({total_failures/total_joints*100:.1f}%)")
+    logger.error(f"\nTotal Network: {total_joints} joints, {total_failures} failures ({total_failures/total_joints*100:.1f}%, exc_info=True)")
     logger.info(f"Inspection Budget: 50 joints (4.0% of network)")
     logger.info()
     
@@ -307,12 +307,12 @@ def analyze_business_value(work_list, risk_df, y_test):
         ("Random Sampling", random_captured, random_cost)
     ]
     
-    logger.error(f"{'Strategy':<25} {'Failures Captured':<20} {'Capture Rate':<15} {'Cost':<15} {'Cost/Failure'}")
+    logger.error(f"{'Strategy':<25} {'Failures Captured':<20} {'Capture Rate':<15} {'Cost':<15} {'Cost/Failure'}", exc_info=True)
     
     for strategy, captured, cost in strategies:
         capture_rate = captured / total_failures
         cost_per_failure = cost / captured if captured > 0 else float('inf')
-        logger.error(f"{strategy:<25} {captured:>8}/{total_failures:<10} {capture_rate:>14.1%} ${cost:>13,.0f} ${cost_per_failure:>12,.0f}")
+        logger.error(f"{strategy:<25} {captured:>8}/{total_failures:<10} {capture_rate:>14.1%} ${cost:>13,.0f} ${cost_per_failure:>12,.0f}", exc_info=True)
     
     # Calculate lift
     ml_lift_vs_ili = ((ml_captured - ili_captured) / ili_captured * 100) if ili_captured > 0 else 0
@@ -320,9 +320,9 @@ def analyze_business_value(work_list, risk_df, y_test):
     ml_lift_vs_random = ((ml_captured - random_captured) / random_captured * 100) if random_captured > 0 else 0
     
     logger.info(f"\nML Model Lift:")
-    logger.error(f"  vs ILI Sort:      +{ml_lift_vs_ili:.1f}% failures captured")
-    logger.error(f"  vs Age Sort:      +{ml_lift_vs_age:.1f}% failures captured")
-    logger.error(f"  vs Random:        +{ml_lift_vs_random:.1f}% failures captured")
+    logger.error(f"  vs ILI Sort:      +{ml_lift_vs_ili:.1f}% failures captured", exc_info=True)
+    logger.error(f"  vs Age Sort:      +{ml_lift_vs_age:.1f}% failures captured", exc_info=True)
+    logger.error(f"  vs Random:        +{ml_lift_vs_random:.1f}% failures captured", exc_info=True)
     
     # Estimate prevented failures
     failure_consequence = 100000
@@ -332,8 +332,8 @@ def analyze_business_value(work_list, risk_df, y_test):
     value_gain = ml_prevented_cost - ili_prevented_cost
     
     logger.info(f"\nEstimated Value (vs ILI Sort):")
-    logger.error(f"  Additional failures prevented: {ml_captured - ili_captured}")
-    logger.error(f"  Value of prevented failures: ${value_gain:,.0f}")
+    logger.error(f"  Additional failures prevented: {ml_captured - ili_captured}", exc_info=True)
+    logger.error(f"  Value of prevented failures: ${value_gain:,.0f}", exc_info=True)
     logger.info(f"  ROI: {value_gain / ml_cost:.1f}x inspection cost")
 
 def main():
