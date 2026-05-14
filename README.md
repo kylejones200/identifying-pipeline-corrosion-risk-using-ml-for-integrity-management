@@ -1,7 +1,7 @@
 # Identifying Pipeline Corrosion Risk Using ML for Integrity Management
 
-**Published:** 2025-10-24
-**Medium:** [https://medium.com/@kyle-t-jones/identifying-pipeline-corrosion-risk-using-ml-for-integrity-management-f185ffd5e007](https://medium.com/@kyle-t-jones/identifying-pipeline-corrosion-risk-using-ml-for-integrity-management-f185ffd5e007)
+Published: 2025-10-24
+Medium: [https://medium.com/@kyle-t-jones/identifying-pipeline-corrosion-risk-using-ml-for-integrity-management-f185ffd5e007](https://medium.com/@kyle-t-jones/identifying-pipeline-corrosion-risk-using-ml-for-integrity-management-f185ffd5e007)
 
 ## About
 
