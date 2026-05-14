@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import signalplot
 import sys
 import os
 
@@ -8,9 +9,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-# Add parent directory to path to import plot_style
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from plot_style import set_tufte_defaults, apply_tufte_style, save_tufte_figure, COLORS
 
 """
 Generate visualizations for Blog 12: Corrosion Risk Ranking
@@ -21,16 +19,8 @@ import matplotlib.pyplot as plt
 import importlib.util
 
 
-# Add parent directory to path to import plot_style
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import Tufte plotting utilities
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from tda_utils import setup_tufte_plot, TufteColors
-
-
-
 # Import production module
 spec = importlib.util.spec_from_file_location(
     "corrosion_risk_production",
@@ -51,7 +41,6 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
     """
     if plot:
         fig = plt.figure(figsize=(12, 10))
-        plt.rcParams['font.family'] = 'serif'
     
     # Panel 1: Risk score distribution
         ax1 = plt.subplot(2, 2, 1)
@@ -139,7 +128,7 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
 
 def main():
     """Generate all visualizations for blog 12."""
-    set_tufte_defaults()
+    signalplot.apply(font_family='serif')
     logger.info("BLOG 12 VISUALIZATION GENERATION")
     logger.info()
     
