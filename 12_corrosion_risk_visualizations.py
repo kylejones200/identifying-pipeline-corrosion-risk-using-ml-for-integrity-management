@@ -145,9 +145,7 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
 def main():
     """Generate all visualizations for blog 12."""
     set_tufte_defaults()
-    logger.info("="*70)
     logger.info("BLOG 12 VISUALIZATION GENERATION")
-    logger.info("="*70)
     logger.info()
     
     # Generate data and train model
@@ -162,9 +160,7 @@ def main():
     create_risk_visualizations(risk_df, work_list, metrics)
     
     logger.info()
-    logger.info("="*70)
     logger.info("Visualization generation complete!")
-    logger.info("="*70)
 
 if __name__ == "__main__":
     main()

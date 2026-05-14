@@ -299,9 +299,7 @@ def analyze_business_value(work_list, risk_df, y_test):
     age_captured = age_sorted['actual_failure'].sum()
     age_cost = age_sorted['work_cost'].sum()
     
-    logger.info("\n" + "="*70)
-    logger.info("BUSINESS VALUE ANALYSIS")
-    logger.info("="*70)
+    logger.info("=== BUSINESS VALUE ANALYSIS ===")
     
     logger.error(f"\nTotal Network: {total_joints} joints, {total_failures} failures ({total_failures/total_joints*100:.1f}%)")
     logger.info(f"Inspection Budget: 50 joints (4.0% of network)")
@@ -315,7 +313,6 @@ def analyze_business_value(work_list, risk_df, y_test):
     ]
     
     logger.error(f"{'Strategy':<25} {'Failures Captured':<20} {'Capture Rate':<15} {'Cost':<15} {'Cost/Failure'}")
-    logger.info("-" * 100)
     
     for strategy, captured, cost in strategies:
         capture_rate = captured / total_failures
@@ -346,9 +343,7 @@ def analyze_business_value(work_list, risk_df, y_test):
 
 def main():
     """Complete pipeline corrosion risk ranking pipeline."""
-    logger.info("="*70)
     logger.info("PIPELINE CORROSION RISK RANKING WITH MACHINE LEARNING")
-    logger.info("="*70)
     logger.info()
     
     # 1. Generate data
@@ -371,9 +366,7 @@ def main():
     # 6. Business value analysis
     analyze_business_value(work_list, risk_df, y_test)
     
-    logger.info("\n" + "="*70)
-    logger.info("Pipeline complete!")
-    logger.info("="*70)
+    logger.info("=== Pipeline complete! ===")
     
     return {
         'model': model,
