@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import signalplot
-import sys
-import os
 
 import logging
 logging.basicConfig(
@@ -20,7 +18,6 @@ import importlib.util
 
 
 
-from pathlib import Path
 # Import production module
 spec = importlib.util.spec_from_file_location(
     "corrosion_risk_production",
@@ -40,7 +37,7 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
     Generate comprehensive risk analysis visualizations.
     """
     if plot:
-        fig = plt.figure(figsize=(12, 10))
+        plt.figure(figsize=(12, 10))
     
     # Panel 1: Risk score distribution
         ax1 = plt.subplot(2, 2, 1)
@@ -107,7 +104,7 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
         top_50_sorted = work_list.sort_values('value_per_dollar', ascending=True)
         y_pos = np.arange(len(top_50_sorted))
     
-        bars = ax4.barh(y_pos[::5], top_50_sorted['value_per_dollar'].values[::5], 
+        ax4.barh(y_pos[::5], top_50_sorted['value_per_dollar'].values[::5], 
                         color='white', edgecolor='black', linewidth=1.5)
     
         ax4.spines['top'].set_visible(False)
