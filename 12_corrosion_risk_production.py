@@ -237,8 +237,9 @@ def analyze_feature_importance(model, X, numeric_cols, categorical_cols):
     ).sort_values("importance", ascending=False)
 
     logger.info("\nFeature Importance (Top 10):")
-    for idx, row in importance_df.head(10).iterrows():
-        logger.info(f"  {row['feature']:<25} {row['importance']:.3f}")
+    for row in importance_df.head(10).itertuples():
+        idx = row.Index
+        logger.info(f"  {row.feature:<25} {row.importance:.3f}")
 
     # Group by category
     logger.info("\nImportance by Category:")
@@ -310,16 +311,17 @@ def create_work_list(model, X_test, y_test, y_pred_proba, budget_joints=50):
     # Display top 10
     logger.info(f"\nTop 10 Priority Joints:")
 
-    for idx, (i, row) in enumerate(work_list.head(10).iterrows(), 1):
+    for idx, row in enumerate(work_list.head(10).itertuples(), 1):
+        i = row.Index
         logger.info(f"\n  Joint #{idx} (ID: {i}):")
-        logger.info(f"    Risk Score: {row['risk_score']:.3f}")
-        logger.info(f"    Value/Cost: ${row['value_per_dollar']:.2f} per $1")
-        logger.info(f"    Age: {row['age_years']} years, Coating: {row['coating']}")
+        logger.info(f"    Risk Score: {row.risk_score:.3f}")
+        logger.info(f"    Value/Cost: ${row.value_per_dollar:.2f} per $1")
+        logger.info(f"    Age: {row.age_years} years, Coating: {row.coating}")
         logger.info(
-            f"    CP: {row['cp_potential']:.3f} V, Soil: {row['soil_resistivity']:.0f} ohm-cm"
+            f"    CP: {row.cp_potential:.3f} V, Soil: {row.soil_resistivity:.0f} ohm-cm"
         )
         logger.info(
-            f"    Metal Loss: {row['ili_metal_loss']:.1f}%, HCA Distance: {row['hca_distance_m']:.0f} m"
+            f"    Metal Loss: {row.ili_metal_loss:.1f}%, HCA Distance: {row.hca_distance_m:.0f} m"
         )
 
     return work_list, risk_df
