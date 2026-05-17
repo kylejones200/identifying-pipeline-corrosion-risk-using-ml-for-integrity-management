@@ -20,7 +20,7 @@ import numpy as np
 # Import production module
 spec = importlib.util.spec_from_file_location(
     "corrosion_risk_production",
-    "/Users/k.jones/Desktop/blogs/blog_posts/12_corrosion_risk_production.py",
+    "outputs/12_corrosion_risk_production.py",
 )
 production_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(production_module)
@@ -179,7 +179,7 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
 
         plt.tight_layout()
         plt.savefig(
-            "/Users/k.jones/Desktop/blogs/blog_posts/12_corrosion_risk_main.png",
+            "outputs/12_corrosion_risk_main.png",
             dpi=300,
             bbox_inches="tight",
         )
