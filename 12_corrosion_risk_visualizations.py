@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
+import importlib.util
 import logging
 
+import matplotlib.pyplot as plt
+import numpy as np
 import signalplot
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 """
 Generate visualizations for Blog 12: Corrosion Risk Ranking
 """
 
-import importlib.util
 
-import matplotlib.pyplot as plt
-import numpy as np
 
 # Import production module
 spec = importlib.util.spec_from_file_location(
@@ -38,7 +36,6 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
     """
     if plot:
         plt.figure(figsize=(12, 10))
-
         # Panel 1: Risk score distribution
         ax1 = plt.subplot(2, 2, 1)
         ax1.hist(
@@ -55,7 +52,6 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
             linewidth=2,
             label=f"Optimal Threshold ({metrics['optimal_threshold']:.3f})",
         )
-
         ax1.spines["top"].set_visible(False)
         ax1.spines["right"].set_visible(False)
         ax1.spines["left"].set_position(("outward", 5))
@@ -69,14 +65,11 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
         ax1.set_xlabel("Risk Score", fontsize=10)
         ax1.set_ylabel("Frequency", fontsize=10)
         ax1.legend(frameon=False, fontsize=9)
-
         # Panel 2: Risk vs Metal Loss
         ax2 = plt.subplot(2, 2, 2)
-
         # Separate failures and non-failures
         failures = risk_df[risk_df["actual_failure"] == 1]
         non_failures = risk_df[risk_df["actual_failure"] == 0]
-
         ax2.scatter(
             non_failures["ili_metal_loss"],
             non_failures["risk_score"],
@@ -96,28 +89,22 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
             linewidths=1.5,
             label="Actual Failure",
         )
-
         ax2.spines["top"].set_visible(False)
         ax2.spines["right"].set_visible(False)
         ax2.spines["left"].set_position(("outward", 5))
         ax2.spines["bottom"].set_position(("outward", 5))
-        ax2.set_title(
-            "Risk Score vs ILI Metal Loss", fontsize=12, fontweight="bold", loc="left"
-        )
+        ax2.set_title("Risk Score vs ILI Metal Loss", fontsize=12, fontweight="bold", loc="left")
         ax2.set_xlabel("ILI Metal Loss (%)", fontsize=10)
         ax2.set_ylabel("Predicted Risk Score", fontsize=10)
         ax2.legend(frameon=False, fontsize=9, loc="lower right")
-
         # Panel 3: CP Potential vs Risk (by coating type)
         ax3 = plt.subplot(2, 2, 3)
-
         coating_colors = {
             "FBE": "white",
             "PE": "lightgray",
             "CoalTar": "gray",
             "Tape": "black",
         }
-
         for coating in ["FBE", "PE", "CoalTar", "Tape"]:
             coating_data = risk_df[risk_df["coating"] == coating]
             ax3.scatter(
@@ -131,10 +118,7 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
                 label=coating,
             )
 
-        ax3.axvline(
-            x=-0.85, color="gray", linestyle="--", linewidth=1.5, label="NACE Criterion"
-        )
-
+        ax3.axvline(x=-0.85, color="gray", linestyle="--", linewidth=1.5, label="NACE Criterion")
         ax3.spines["top"].set_visible(False)
         ax3.spines["right"].set_visible(False)
         ax3.spines["left"].set_position(("outward", 5))
@@ -148,13 +132,10 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
         ax3.set_xlabel("CP Potential (V vs Cu/CuSO4)", fontsize=10)
         ax3.set_ylabel("Predicted Risk Score", fontsize=10)
         ax3.legend(frameon=False, fontsize=8, loc="upper left")
-
         # Panel 4: Work List Value
         ax4 = plt.subplot(2, 2, 4)
-
         top_50_sorted = work_list.sort_values("value_per_dollar", ascending=True)
         y_pos = np.arange(len(top_50_sorted))
-
         ax4.barh(
             y_pos[::5],
             top_50_sorted["value_per_dollar"].values[::5],
@@ -162,7 +143,6 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
             edgecolor="black",
             linewidth=1.5,
         )
-
         ax4.spines["top"].set_visible(False)
         ax4.spines["right"].set_visible(False)
         ax4.spines["left"].set_position(("outward", 5))
@@ -176,7 +156,6 @@ def create_risk_visualizations(risk_df, work_list, metrics, plot: bool = False):
         ax4.set_xlabel("Value per Dollar Spent", fontsize=10)
         ax4.set_ylabel("Joint Rank", fontsize=10)
         ax4.set_yticks([])
-
         plt.tight_layout()
         plt.savefig(
             "outputs/12_corrosion_risk_main.png",
@@ -193,20 +172,15 @@ def main():
     signalplot.apply(font_family="serif")
     logger.info("BLOG 12 VISUALIZATION GENERATION")
     logger.info()
-
     # Generate data and train model
     df = generate_pipeline_corrosion_data(n_joints=5000, random_seed=42)
     X, y, numeric_cols, categorical_cols = prepare_features(df)
     model, X_test, y_test, y_pred_proba, metrics = train_corrosion_risk_model(
         X, y, numeric_cols, categorical_cols
     )
-    work_list, risk_df = create_work_list(
-        model, X_test, y_test, y_pred_proba, budget_joints=50
-    )
-
+    work_list, risk_df = create_work_list(model, X_test, y_test, y_pred_proba, budget_joints=50)
     # Create visualizations
     create_risk_visualizations(risk_df, work_list, metrics)
-
     logger.info()
     logger.info("Visualization generation complete!")
 
